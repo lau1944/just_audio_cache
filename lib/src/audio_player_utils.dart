@@ -22,6 +22,11 @@ extension AudioPlayerExtension on AudioPlayer {
   /// [excludeCallback] a callback function where you can specify which file you don't want to be cached
   Future<void> playFromDynamic(
       {bool pushIfNotExisted = true, bool excludeCallback(url)?}) async {
+    // If the audio is not loaded the first time, we just call play()
+    if (processingState == ProcessingState.ready) {
+      return await play();
+    }
+
     String url = '';
     if (audioSource is UriAudioSource) {
       url = (audioSource as UriAudioSource).uri.toString();
