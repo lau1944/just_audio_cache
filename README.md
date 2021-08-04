@@ -1,5 +1,7 @@
 # just_audio_cache
 
+[![codecov](https://codecov.io/gh/lau1944/shark/branch/dev/graph/badge.svg?token=USH2YH4BK1)](https://pub.dev/packages/just_audio_cache)
+
 Collection of extension function of [just_audio](https://pub.dev/packages/just_audio) package for auto-handle caching audio files
 
 ## How to use
