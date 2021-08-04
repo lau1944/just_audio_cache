@@ -20,7 +20,9 @@ The next time the same url request call, would call the local file instead of re
 ```dart
 import 'package:just_audio_cache/just_audio_cache.dart';
 
-void _play() {
+void _play() async {
+   // remember to setUrl before play
+   await _player.setUrl(your_url);
    _player.playFromDynamic();
 }
 ```
