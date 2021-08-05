@@ -5,18 +5,16 @@ import 'package:just_audio_cache/src/parser.dart';
 
 class IoClient {
   static Future<String?> download(
-      {required String url, required String rootPath}) async {
+      {required String url, required String path}) async {
     try {
       final res = await http.get(
         Uri.parse(url),
       );
       if (res.statusCode == 200) {
         final bytes = res.bodyBytes;
-        final key = parseUrl(url);
-        final filePath = rootPath + '/$key';
-        final file = File(filePath);
+        final file = File(path);
         await file.writeAsBytes(bytes);
-        return filePath;
+        return path;
       } else {
         return null;
       }

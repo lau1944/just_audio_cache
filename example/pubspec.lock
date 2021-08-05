@@ -134,7 +134,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.0.1"
+    version: "0.0.2"
   just_audio_platform_interface:
     dependency: transitive
     description:

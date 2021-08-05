@@ -17,19 +17,23 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late final AudioPlayer _player;
   final url = 'https://www.mboxdrive.com/m54.mp3';
+  PlayerState? _state;
 
   @override
   void initState() {
     _player = AudioPlayer();
-    _player.setUrl(url);
+    _player.dynamicSet(url: url);
     _player.playerStateStream.listen((state) {
+      setState(() {
+        _state = state;
+      });
       print(state);
     });
     super.initState();
   }
 
   void _playAudio() async {
-    _player.playFromDynamic();
+    _player.play();
   }
 
   @override
@@ -37,14 +41,42 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
       home: Container(
         child: Center(
-          child: ElevatedButton(
-            onPressed: () {
-              _playAudio();
-            },
-            child: Text('Play'),
-          ),
+          child: _audioStateWidget(),
         ),
       ),
     );
   }
+
+  Widget _audioStateWidget() {
+    if (_state == null) return _playButton;
+
+    if (_state!.processingState == ProcessingState.buffering ||
+        _state!.processingState == ProcessingState.loading) {
+      return CircularProgressIndicator();
+    }
+
+    if (_state!.processingState == ProcessingState.ready) {
+      if (_state!.playing) {
+        return _pauseButton;
+      } else {
+        return _playButton;
+      }
+    }
+
+    return SizedBox();
+  }
+
+  Widget get _pauseButton => ElevatedButton(
+    onPressed: () {
+      _player.pause();
+    },
+    child: Text('Pause'),
+  );
+
+  Widget get _playButton => ElevatedButton(
+        onPressed: () {
+          _playAudio();
+        },
+        child: Text('Play'),
+      );
 }

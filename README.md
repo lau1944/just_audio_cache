@@ -8,7 +8,7 @@ Collection of extension function of [just_audio](https://pub.dev/packages/just_a
 
 <p> The premise is you already have just_audio package in your dependency </p>
 
-Core method `playFromDynamic` would auto handle caching, if the target file not in cache, would push it in cache.
+Core method `dynamicSet` would auto handle caching, if the target file not in cache, would download it and push in cache.
 
 The next time the same url request call, would call the local file instead of requesting.
 
@@ -21,9 +21,9 @@ The next time the same url request call, would call the local file instead of re
 import 'package:just_audio_cache/just_audio_cache.dart';
 
 void _play() async {
-   // remember to setUrl before play
-   await _player.setUrl(your_url);
-   _player.playFromDynamic();
+   // dynamic set your audio source
+   await _player.dynamicSet(your_url);
+   _player.play();
 }
 ```
 

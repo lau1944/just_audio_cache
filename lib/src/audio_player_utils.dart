@@ -16,10 +16,44 @@ extension AudioPlayerExtension on AudioPlayer {
     return _sp!.getString(key) != null;
   }
 
-  /// Play audio from local if exist, otherwise play from network
+  /// Get audio from local if exist, otherwise download from network
   /// [url] is your audio source, a unique key that represents the stored file path,
   /// [pushIfNotExisted] if true, when the file not exists, would download the file and push in cache
   /// [excludeCallback] a callback function where you can specify which file you don't want to be cached
+  Future<Duration?> dynamicSet({
+    required String url,
+    bool pushIfNotExisted = true,
+    bool excludeCallback(url)?,
+    bool preload = true,
+  }) async {
+    if (_sp == null) _sp = await SharedPreferences.getInstance();
+
+    if (excludeCallback != null) {
+      pushIfNotExisted = excludeCallback(url);
+    }
+
+    final dirPath = (await _openDir()).path;
+
+    final key = getUrlSuffix(url);
+    // File check
+    if (await existedInLocal(key: key)) {
+      // existed, play from local file
+      return await setFilePath(_sp!.getString(key)!, preload: preload);
+    }
+
+    if (pushIfNotExisted) {
+      final storedPath =
+      await IoClient.download(url: url, path: dirPath + '/' + key);
+      if (storedPath != null) {
+        _sp!.setString(key, storedPath);
+        return await setFilePath(storedPath, preload: preload);
+      }
+    }
+
+    return await setUrl(url, preload: preload);
+  }
+  
+  @Deprecated('Method is not longer working, Use dynamicSet instead')
   Future<void> playFromDynamic(
       {bool pushIfNotExisted = true, bool excludeCallback(url)?}) async {
     // If the audio is not loaded the first time, we just call play()
@@ -31,8 +65,10 @@ extension AudioPlayerExtension on AudioPlayer {
     if (audioSource is UriAudioSource) {
       url = (audioSource as UriAudioSource).uri.toString();
     } else {
-      throw ArgumentError('Please call setUrl before any play operation');
+      print('Please call setUrl before any play operation');
+      return await play();
     }
+
     if (_sp == null) _sp = await SharedPreferences.getInstance();
 
     if (excludeCallback != null) {
@@ -41,7 +77,7 @@ extension AudioPlayerExtension on AudioPlayer {
 
     final dirPath = (await _openDir()).path;
 
-    final key = parseUrl(url);
+    final key = getUrlSuffix(url);
     // File check
     if (await existedInLocal(key: key)) {
       // existed, play from local file
@@ -51,7 +87,8 @@ extension AudioPlayerExtension on AudioPlayer {
     await play();
 
     if (pushIfNotExisted) {
-      final storedPath = await IoClient.download(url: url, rootPath: dirPath);
+      final storedPath =
+          await IoClient.download(url: url, path: dirPath + '/' + key);
       if (storedPath != null) {
         _sp!.setString(key, storedPath);
       }
@@ -60,8 +97,8 @@ extension AudioPlayerExtension on AudioPlayer {
 
   Future<void> cacheFile({required String url}) async {
     final dirPath = (await _openDir()).path;
-    final key = parseUrl(url);
-    final storedPath = await IoClient.download(url: url, rootPath: dirPath);
+    final key = getUrlSuffix(url);
+    final storedPath = await IoClient.download(url: url, path: dirPath);
     if (storedPath != null) {
       _sp!.setString(key, storedPath);
     }
