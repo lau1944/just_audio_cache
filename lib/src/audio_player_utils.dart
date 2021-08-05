@@ -50,16 +50,18 @@ extension AudioPlayerExtension on AudioPlayer {
       return await setFilePath(_sp!.getString(key)!, preload: preload);
     }
 
+    final duration = await setUrl(url, preload: preload);
+
+    // download to cache after setUrl in order to show the audio buffer state
     if (pushIfNotExisted) {
       final storedPath =
           await IoClient.download(url: url, path: dirPath + '/' + key);
       if (storedPath != null) {
         _sp!.setString(key, storedPath);
-        return await setFilePath(storedPath, preload: preload);
       }
     }
 
-    return await setUrl(url, preload: preload);
+    return duration;
   }
 
   Future<void> cacheFile({required String url, String? path}) async {

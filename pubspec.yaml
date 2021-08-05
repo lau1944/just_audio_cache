@@ -1,6 +1,6 @@
 name: just_audio_cache
 description: Collection of extension function of [just_audio](https://pub.dev/packages/just_audio) package for auto-handle caching audio files
-version: 0.0.4
+version: 0.0.5
 homepage: https://github.com/lau1944/just_audio_cache
 
 environment:
