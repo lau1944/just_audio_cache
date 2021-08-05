@@ -39,6 +39,12 @@ _player.existedInLocal(your_url);
 _player.cacheFile(your_audio_url);
 ```
 
+<p> Get Cached file for the following url </p>
+
+```dart
+_player.getCachedFile(url: your_url);
+```
+
 <p> Clear all the cache from storage </p>
 
 ``` dart

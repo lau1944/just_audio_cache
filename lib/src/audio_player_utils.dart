@@ -9,19 +9,28 @@ import 'package:shared_preferences/shared_preferences.dart';
 extension AudioPlayerExtension on AudioPlayer {
   static SharedPreferences? _sp;
 
-  /// Check if the file corresponds the key exists in local
-  Future<bool> existedInLocal({required String key}) async {
+  /// Check if the file corresponds the url exists in local
+  Future<bool> existedInLocal({required String url}) async {
     if (_sp == null) _sp = await SharedPreferences.getInstance();
 
-    return _sp!.getString(key) != null;
+    return _sp!.getString(getUrlSuffix(url)) != null;
+  }
+
+  /// Get audio file cache path
+  Future<String?> getCachedPath({required String url}) async {
+    if (_sp == null) _sp = await SharedPreferences.getInstance();
+
+    return _sp!.getString(getUrlSuffix(url));
   }
 
   /// Get audio from local if exist, otherwise download from network
   /// [url] is your audio source, a unique key that represents the stored file path,
+  /// [path] the storage path you want to save your cache
   /// [pushIfNotExisted] if true, when the file not exists, would download the file and push in cache
   /// [excludeCallback] a callback function where you can specify which file you don't want to be cached
   Future<Duration?> dynamicSet({
     required String url,
+    String? path,
     bool pushIfNotExisted = true,
     bool excludeCallback(url)?,
     bool preload = true,
@@ -32,18 +41,18 @@ extension AudioPlayerExtension on AudioPlayer {
       pushIfNotExisted = excludeCallback(url);
     }
 
-    final dirPath = (await _openDir()).path;
+    final dirPath = path ?? (await _openDir()).path;
 
     final key = getUrlSuffix(url);
     // File check
-    if (await existedInLocal(key: key)) {
+    if (await _isKeyExisted(key)) {
       // existed, play from local file
       return await setFilePath(_sp!.getString(key)!, preload: preload);
     }
 
     if (pushIfNotExisted) {
       final storedPath =
-      await IoClient.download(url: url, path: dirPath + '/' + key);
+          await IoClient.download(url: url, path: dirPath + '/' + key);
       if (storedPath != null) {
         _sp!.setString(key, storedPath);
         return await setFilePath(storedPath, preload: preload);
@@ -52,51 +61,9 @@ extension AudioPlayerExtension on AudioPlayer {
 
     return await setUrl(url, preload: preload);
   }
-  
-  @Deprecated('Method is not longer working, Use dynamicSet instead')
-  Future<void> playFromDynamic(
-      {bool pushIfNotExisted = true, bool excludeCallback(url)?}) async {
-    // If the audio is not loaded the first time, we just call play()
-    if (processingState == ProcessingState.ready) {
-      return await play();
-    }
 
-    String url = '';
-    if (audioSource is UriAudioSource) {
-      url = (audioSource as UriAudioSource).uri.toString();
-    } else {
-      print('Please call setUrl before any play operation');
-      return await play();
-    }
-
-    if (_sp == null) _sp = await SharedPreferences.getInstance();
-
-    if (excludeCallback != null) {
-      pushIfNotExisted = excludeCallback(url);
-    }
-
-    final dirPath = (await _openDir()).path;
-
-    final key = getUrlSuffix(url);
-    // File check
-    if (await existedInLocal(key: key)) {
-      // existed, play from local file
-      return await playFromFile(filePath: _sp!.getString(key)!);
-    }
-
-    await play();
-
-    if (pushIfNotExisted) {
-      final storedPath =
-          await IoClient.download(url: url, path: dirPath + '/' + key);
-      if (storedPath != null) {
-        _sp!.setString(key, storedPath);
-      }
-    }
-  }
-
-  Future<void> cacheFile({required String url}) async {
-    final dirPath = (await _openDir()).path;
+  Future<void> cacheFile({required String url, String? path}) async {
+    final dirPath = path ?? (await _openDir()).path;
     final key = getUrlSuffix(url);
     final storedPath = await IoClient.download(url: url, path: dirPath);
     if (storedPath != null) {
@@ -105,14 +72,20 @@ extension AudioPlayerExtension on AudioPlayer {
   }
 
   /// Clear all the cache in the app dir
-  Future<void> clearCache() async {
-    final dir = await _openDir();
+  Future<void> clearCache({String? path}) async {
+    final dir = path != null ? Directory(path) : (await _openDir());
     return dir.deleteSync();
   }
 
   Future<void> playFromFile({required String filePath}) async {
     await setFilePath(filePath);
     return await play();
+  }
+
+  Future<bool> _isKeyExisted(String key) async {
+    if (_sp == null) _sp = await SharedPreferences.getInstance();
+
+    return _sp!.getString(key) != null;
   }
 
   Future<Directory> _openDir() async {
