@@ -13,7 +13,7 @@ extension AudioPlayerExtension on AudioPlayer {
   Future<bool> existedInLocal({required String url}) async {
     if (_sp == null) _sp = await SharedPreferences.getInstance();
 
-    return _sp!.getString(getUrlSuffix(url)) != null;
+    return _sp!.getString(url) != null;
   }
 
   /// Get audio file cache path
@@ -42,13 +42,11 @@ extension AudioPlayerExtension on AudioPlayer {
     }
 
     final dirPath = path ?? (await _openDir()).path;
-
-    final key = getUrlSuffix(url);
     // File check
-    if (await _isKeyExisted(key)) {
+    if (await existedInLocal(url: url)) {
       // existed, play from local file
       try {
-        return await setFilePath(_sp!.getString(key)!, preload: preload);
+        return await setFilePath(_sp!.getString(url)!, preload: preload);
       } catch (e) {
         print(e);
       }
@@ -58,9 +56,10 @@ extension AudioPlayerExtension on AudioPlayer {
 
     // download to cache after setUrl in order to show the audio buffer state
     if (pushIfNotExisted) {
+      final key = getUrlSuffix(url);
       IoClient.download(url: url, path: dirPath + '/' + key).then((storedPath) {
         if (storedPath != null) {
-          _sp!.setString(key, storedPath);
+          _sp!.setString(url, storedPath);
         }
       });
     }
@@ -70,10 +69,9 @@ extension AudioPlayerExtension on AudioPlayer {
 
   Future<void> cacheFile({required String url, String? path}) async {
     final dirPath = path ?? (await _openDir()).path;
-    final key = getUrlSuffix(url);
     final storedPath = await IoClient.download(url: url, path: dirPath);
     if (storedPath != null) {
-      _sp!.setString(key, storedPath);
+      _sp!.setString(url, storedPath);
     }
   }
 
@@ -88,11 +86,11 @@ extension AudioPlayerExtension on AudioPlayer {
     return await play();
   }
 
-  Future<bool> _isKeyExisted(String key) async {
+  /*Future<bool> _isKeyExisted(String key) async {
     if (_sp == null) _sp = await SharedPreferences.getInstance();
 
     return _sp!.getString(key) != null;
-  }
+  }*/
 
   Future<Directory> _openDir() async {
     final dir = await getApplicationDocumentsDirectory();
