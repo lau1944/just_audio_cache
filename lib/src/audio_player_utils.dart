@@ -58,11 +58,11 @@ extension AudioPlayerExtension on AudioPlayer {
 
     // download to cache after setUrl in order to show the audio buffer state
     if (pushIfNotExisted) {
-      final storedPath =
-          await IoClient.download(url: url, path: dirPath + '/' + key);
-      if (storedPath != null) {
-        _sp!.setString(key, storedPath);
-      }
+      IoClient.download(url: url, path: dirPath + '/' + key).then((storedPath) {
+        if (storedPath != null) {
+          _sp!.setString(key, storedPath);
+        }
+      });
     }
 
     return duration;
