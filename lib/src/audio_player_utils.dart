@@ -47,7 +47,11 @@ extension AudioPlayerExtension on AudioPlayer {
     // File check
     if (await _isKeyExisted(key)) {
       // existed, play from local file
-      return await setFilePath(_sp!.getString(key)!, preload: preload);
+      try {
+        return await setFilePath(_sp!.getString(key)!, preload: preload);
+      } catch (e) {
+        print(e);
+      }
     }
 
     final duration = await setUrl(url, preload: preload);
