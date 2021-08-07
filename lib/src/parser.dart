@@ -4,7 +4,7 @@
 /// example: www.google/micro/web/video.mp3 -> video.mp3
 String getUrlSuffix(String url) {
   StringBuffer _buffer = StringBuffer();
-  final urlFormat = Uri.dataFromString(url);
+  final urlFormat = Uri.parse(url);
   List<String> paths = urlFormat.path.split('/');
   if (paths.isNotEmpty) {
     for (final p in paths) {
@@ -12,5 +12,5 @@ String getUrlSuffix(String url) {
     }
     return _buffer.toString();
   }
-  return 'default';
+  return urlFormat.host;
 }
