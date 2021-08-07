@@ -1,10 +1,16 @@
 
-/// Parse url, get the last path of a url
+
+/// Parse url, get a unique string
 /// example: www.google/micro/web/video.mp3 -> video.mp3
 String getUrlSuffix(String url) {
-  List<String> paths = url.split('/');
+  StringBuffer _buffer = StringBuffer();
+  final urlFormat = Uri.dataFromString(url);
+  List<String> paths = urlFormat.path.split('/');
   if (paths.isNotEmpty) {
-    return paths[paths.length - 1];
+    for (final p in paths) {
+      _buffer.write(p);
+    }
+    return _buffer.toString();
   }
   return 'default';
 }

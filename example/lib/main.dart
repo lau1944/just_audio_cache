@@ -50,28 +50,19 @@ class _MyAppState extends State<MyApp> {
   Widget _audioStateWidget() {
     if (_state == null) return _playButton;
 
-    if (_state!.processingState == ProcessingState.buffering ||
-        _state!.processingState == ProcessingState.loading) {
-      return CircularProgressIndicator();
+    if (_state!.playing) {
+      return _pauseButton;
+    } else {
+      return _playButton;
     }
-
-    if (_state!.processingState == ProcessingState.ready) {
-      if (_state!.playing) {
-        return _pauseButton;
-      } else {
-        return _playButton;
-      }
-    }
-
-    return SizedBox();
   }
 
   Widget get _pauseButton => ElevatedButton(
-    onPressed: () {
-      _player.pause();
-    },
-    child: Text('Pause'),
-  );
+        onPressed: () {
+          _player.pause();
+        },
+        child: Text('Pause'),
+      );
 
   Widget get _playButton => ElevatedButton(
         onPressed: () {
