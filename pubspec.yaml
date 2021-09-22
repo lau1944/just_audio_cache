@@ -1,6 +1,6 @@
 name: just_audio_cache
 description: Collection of extension function of [just_audio](https://pub.dev/packages/just_audio) package for auto-handle caching audio files
-version: 0.1.0
+version: 0.1.1
 homepage: https://github.com/lau1944/just_audio_cache
 
 environment:
@@ -10,7 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  just_audio: ^0.9.5
+  just_audio: ^0.9.11
   shared_preferences: ^2.0.6
   path_provider: ^2.0.2
   http: ^0.13.3

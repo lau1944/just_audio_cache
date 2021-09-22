@@ -17,12 +17,18 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late final AudioPlayer _player;
   final url = 'https://www.mboxdrive.com/m54.mp3';
+  final sources = [
+    'https://www.mboxdrive.com/m54.mp3',
+    'https://www.mboxdrive.com/%c3%86STRAL%20-%20half%20light.mp3',
+    'https://www.mboxdrive.com/%ca%8f%e1%b4%80%20%ca%99%e1%b4%9c%e1%b4%85%e1%b4%9c.mp3'
+  ];
   PlayerState? _state;
 
   @override
   void initState() {
     _player = AudioPlayer();
-    _player.dynamicSet(url: url);
+    //_player.dynamicSet(url: url);
+    _player.dynamicSetAll(sources);
     _player.playerStateStream.listen((state) {
       setState(() {
         _state = state;

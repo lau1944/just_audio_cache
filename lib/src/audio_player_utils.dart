@@ -27,7 +27,8 @@ extension AudioPlayerExtension on AudioPlayer {
   /// [url] is your audio source, a unique key that represents the stored file path,
   /// [path] the storage path you want to save your cache
   /// [pushIfNotExisted] if true, when the file not exists, would download the file and push in cache
-  /// [excludeCallback] a callback function where you can specify which file you don't want to be cached
+  /// [excludeCallback] a callback function where you can specify which file you don't want to be cached,
+  ///  (return `true` if we want to exclude the specific source)
   Future<Duration?> dynamicSet({
     required String url,
     String? path,
@@ -65,6 +66,28 @@ extension AudioPlayerExtension on AudioPlayer {
     }
 
     return duration;
+  }
+
+  /// Cache a collection of audio source
+  /// [sources] target sources for your playlist
+  /// [path] The dir path where sources store
+  /// [excluded] the sources you don't want to save in storage
+  Future<List<Duration?>> dynamicSetAll(
+    List<String> sources, [
+    String? path,
+    List<String>? excluded,
+  ]) async {
+    final durations = const <Duration?>[];
+    for (final url in sources) {
+      durations.add(
+        await dynamicSet(
+          url: url,
+          path: path,
+          excludeCallback: (url) => excluded != null && excluded.contains(url),
+        ),
+      );
+    }
+    return durations;
   }
 
   Future<void> cacheFile({required String url, String? path}) async {
