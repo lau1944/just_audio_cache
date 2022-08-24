@@ -77,7 +77,7 @@ extension AudioPlayerExtension on AudioPlayer {
     String? path,
     List<String>? excluded,
   ]) async {
-    final durations = const <Duration?>[];
+    var durations = <Duration?>[];
     for (final url in sources) {
       durations.add(
         await dynamicSet(
