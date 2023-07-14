@@ -27,8 +27,8 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     _player = AudioPlayer();
-    //_player.dynamicSet(url: url);
-    _player.dynamicSetAll(sources);
+    _player.dynamicSet(url: 'https://myerecordstudiobucket.s3.amazonaws.com/HighRatedGabruGuruRandhawa582292_40_903700_13.mp3');
+    //_player.dynamicSetAll(sources);
     _player.playerStateStream.listen((state) {
       setState(() {
         _state = state;
