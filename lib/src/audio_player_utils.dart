@@ -92,7 +92,9 @@ extension AudioPlayerExtension on AudioPlayer {
 
   Future<void> cacheFile({required String url, String? path}) async {
     final dirPath = path ?? (await _openDir()).path;
-    final storedPath = await IoClient.download(url: url, path: dirPath);
+    final key = getUrlSuffix(url);
+    final storedPath =
+        await IoClient.download(url: url, path: dirPath + '/' + key);
     if (storedPath != null) {
       _sp!.setString(url, storedPath);
     }
